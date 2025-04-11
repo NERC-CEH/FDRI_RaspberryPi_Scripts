@@ -1,5 +1,5 @@
 import unittest
-from dri-rasberrycam.module import add_int
+from rasberrycam.module import add_int
 from parameterized import parameterized
 
 class TestModuleMethods(unittest.TestCase):

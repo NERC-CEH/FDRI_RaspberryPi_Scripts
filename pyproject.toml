@@ -1,37 +1,32 @@
 [build-system]
 requires = ["setuptools >= 61.0", "autosemver"]
-# build-backend = "setuptools.build_meta"
+build-backend = "setuptools.build_meta"
 
 [project]
 requires-python = ">=3.12"
-dependencies = [
-    "autosemver"
-]
+dependencies = ["autosemver"]
 name = "dri-rasberrycam"
 dynamic = ["version"]
-authors = [{ name = "John Doe", email = "johdoe@ceh.ac.uk" }]
+# authors = [{ name = "John Doe", email = "johdoe@ceh.ac.uk" }]
 description = "A minimal setup for a template package."
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "parameterized"]
-docs = ["sphinx", "sphinx-copybutton", "sphinx-rtd-theme"]
 lint = ["ruff"]
-dev = ["dri-rasberrycam[test,docs,lint]"]
+dev = ["dri-rasberrycam[test,lint]"]
 
 [tool.setuptools.dynamic]
-version = { attr = "dri-rasberrycam.__version__" }
+version = { attr = "rasberrycam.__version__" }
 
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["dri-rasberrycam*"]
+include = ["rasberrycam*"]
 
 [tool.pytest.ini_options]
 
-addopts = "--cov=dri-rasberrycam"
-markers = [
-    "slow: Marks slow tests",
-]
+addopts = "--cov=rasberrycam"
+markers = ["slow: Marks slow tests"]
 
 filterwarnings = [
     "ignore::DeprecationWarning:autosemver.*:",
@@ -47,7 +42,22 @@ include = ["src/**.py"]
 line-length = 120
 
 [tool.ruff.lint]
-select = ["F", "E", "W", "A", "PLC", "PLE", "PLW", "I", "N816", "ANN001", "ANN201", "ANN202", "ANN205", "ANN206"]
+select = [
+    "F",
+    "E",
+    "W",
+    "A",
+    "PLC",
+    "PLE",
+    "PLW",
+    "I",
+    "N816",
+    "ANN001",
+    "ANN201",
+    "ANN202",
+    "ANN205",
+    "ANN206",
+]
 
 [tool.ruff.lint.flake8-type-checking]
 strict = true
