@@ -106,16 +106,18 @@ class S3Manager:
     access_key_id: str
     secret_access_key: str
     region: str
+    role_arn: str
 
     credentials: AWSCredentials | None = None
-    def __init__(self, access_token_id: str, secret_access_token: str, region: str) -> None:
+    def __init__(self, access_key_id: str, secret_access_key: str, region: str, role_arn: str) -> None:
 
-        self.access_token_id = access_token_id
-        self.secret_access_token = secret_access_token
+        self.access_key_id = access_key_id
+        self.secret_access_key = secret_access_key
         self.region = region
+        self.role_arn = role_arn
     
-    def assume_role(self, role_arn: str) -> None:
-        self.credentials = assume_role(role_arn, self.access_key_id, self.secret_access_key, self.region)
+    def assume_role(self) -> None:
+        self.credentials = assume_role(self.role_arn, self.access_key_id, self.secret_access_key, self.region)
 
     def upload(self, file_path: Path, bucket_name: str, object_name: str|None = None) -> bool:
         return upload_to_s3(file_path, bucket_name, self.region, self.credentials, object_name=object_name) #type:ignore

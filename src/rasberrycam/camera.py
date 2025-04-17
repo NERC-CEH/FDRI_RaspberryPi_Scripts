@@ -19,25 +19,27 @@ class CameraInterface(ABC):
         self.quality = quality
 
     @abstractmethod
-    def capture_image(self, *args, **kwargs) -> bool:
+    def capture_image(self, *args, **kwargs) -> None:
         pass
 
-    @abstractmethod
-    def power_on(self) -> None:
-        pass
+class DebugCamera(CameraInterface):
 
-    @abstractmethod
-    def power_off(self) -> None:
-        pass
+    def capture_image(self, filepath: Path) -> None:
+        try:
+            logger.info(f"Capturing image")
+
+            with open(filepath, "w") as f:
+                f.write("Pretend I'm an image")
+            
+            logger.info(f"Wrote fake image to {filepath}")
+        except Exception as e:
+            logger.exception("Failed to write image", exc_info=e)
 
 
 class LibCamera(CameraInterface):
-    def capture_image(self, filepath: Path) -> bool:
+    def capture_image(self, filepath: Path) -> None:
         """Capture an image using libcamera with lower resolution directly"""
         try:
-            # Turn on camera if needed
-            self.power_on()
-
             # Use libcamera-still with reduced resolution and quality
             logger.info(f"Capturing image")
             subprocess.call(
@@ -57,13 +59,10 @@ class LibCamera(CameraInterface):
             if os.path.exists(filepath):
                 file_size = os.path.getsize(filepath) / 1024  # KB
                 logger.info(f"Image captured: {filepath} ({file_size:.2f}KB)")
-                return True
             else:
                 logger.error("Image capture failed: file not created")
-                return False
         except Exception as e:
             logger.error(f"Error capturing image: {e}")
-            return False
 
     def power_on(self) -> None:
         try:
@@ -80,38 +79,3 @@ class LibCamera(CameraInterface):
                 subprocess.run("sudo rmmod bcm2835-isp", shell=True)
         except Exception as e:
             logger.error(f"Failed to turn off camera: {e}")
-
-
-# class RaspberryCameraOptions:
-
-#     base_directory = Path(user_data_dir(rasberrycam.__name__))
-#     save_directory = base_directory / "photos"
-#     pending_directory = base_directory / "pending_uploads"
-#     capture_interval: int
-#     image_quality: int # 1-100
-#     image_max_width: int
-#     image_max_height: int
-#     auto_shutdown: bool
-#     immediate_upload: bool
-
-#     def __init__(
-#         self,
-#         base_directory: Path|None = None,
-#         capture_interval: int = 300,
-#         image_quality: int = 85, # 1-100
-#         image_max_width: int = 1024,
-#         image_max_height: int = 768,
-#         auto_shutdown: bool = True,
-#         immediate_upload: bool = True
-#     ) -> None:
-
-#         if base_directory:
-#             self.base_directory = base_directory
-
-#         self.capture_interval_day = capture_interval_day
-#         self.capture_interval_night = capture_interval_night
-#         self.image_quality = image_quality
-#         self.image_max_height = image_max_height
-#         self.image_max_width = image_max_width
-#         self.auto_shutdown = auto_shutdown
-#         self.immediate_upload = immediate_upload

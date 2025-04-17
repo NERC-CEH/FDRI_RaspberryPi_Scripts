@@ -44,7 +44,10 @@ class TemporalLocation:
             longitude=self.longitude,
         )
         return self._location
+    
+    def get_sun_stats(self, date: date) -> SunStats:
+        return TemporalLocation._get_sun_stats(self.location, date)
 
     @staticmethod
-    def _get_sun_stats(location: LocationInfo, date: date) -> Dict[str, datetime]:
-        return sun(location.observer, date=date)
+    def _get_sun_stats(location: LocationInfo, date: date) -> SunStats:
+        return sun(location.observer, date=date) #type: ignore
