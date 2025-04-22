@@ -1,12 +1,12 @@
-from abc import ABC, abstractmethod
-from enum import Enum
-from typing import Callable, List, Tuple, Type, TypedDict
-from datetime import date, datetime, timedelta
-
-from rasberrycam.temporal import TemporalLocation
 import logging
+from datetime import date, datetime, timedelta
+from enum import Enum
+from typing import Callable, List, TypedDict
+
+from rasberrycam.location import Location
 
 logger = logging.getLogger(__name__)
+
 
 class ScheduleState(Enum):
     """Valid schedule states"""
@@ -16,111 +16,87 @@ class ScheduleState(Enum):
 
 
 class ScheduleItemRaw(TypedDict):
+    """Type for schedule item as it is stored. "time" may be a datetime or a
+    callable that returns a datetime"""
+
     time: Callable[[], datetime] | datetime
     state: ScheduleState
 
 
 class ScheduleItem(TypedDict):
+    """Type for a schedule item. "time" can only be a datetime"""
+
     time: datetime
     state: ScheduleState
 
 
 type ScheduleListRaw = List[ScheduleItemRaw]
+"""Helper type for a list of raw schedule items"""
+
 type ScheduleList = List[ScheduleItem]
-    
+"""Helper type for a list of schedule items"""
 
-class SchedulerInterface(ABC):
-    def __init__(self, schedule: List[ScheduleItemRaw]) -> None:
-        self.schedule = schedule
-
-    @abstractmethod
-    def _get_schedule(self, *args, **kwargs):
-        return self.schedule
-
-    @abstractmethod
-    def _get_next_schedule(self, *args, **kwargs):
-        pass
-
-    @property
-    def schedule(self) -> List[ScheduleItem]:
-        items: ScheduleList = []
-        for item in self._schedule:
-            time = item["time"]() if isinstance(item["time"], Callable) else item["time"]
-            items.append({"time": time, "state": item["state"]})
-
-        return items
-
-    @schedule.setter
-    def schedule(self, schedule: ScheduleListRaw) -> None:
-        if not hasattr(schedule, "__iter__"):
-            schedule = [schedule]  # type: ignore
-
-        # last_item = None
-        for i, item in enumerate(schedule):
-            # Check schedule type
-            if not isinstance(item["time"], (Callable, datetime)):
-                raise TypeError(f"Schedule item must be a Callable or datetime, not '{type(item['time'])}'")
-
-            # Check current item is later than last item
-            if i > 0:
-                this_item = item
-                last_item = schedule[i - 1]
-                if isinstance(this_item["time"], Callable):
-                    this_item["time"] = this_item["time"]()
-                if isinstance(last_item["time"], Callable):
-                    last_item["time"] = last_item["time"]()
-
-                if this_item["time"] <= last_item["time"]:
-                    raise RuntimeError("Schedule items must be unique and sequential")
-
-        self._schedule = schedule
-
-    def get_state(self, time: datetime) -> ScheduleState:
-        """Returns an enum of the desired state"""
-
-        state = ScheduleState.ON
-        for item in self.schedule:
-            if time >= item["time"]:
-                state = item["state"]
-
-        return state
 
 class FdriScheduler:
+    """Scheduling class for managing schedules in FDRI devices"""
 
-    def __init__(self, location: TemporalLocation) -> None:
+    location: Location
+    """Location of the device, used to calculate the sunrise/sunset time"""
+
+    def __init__(self, location: Location) -> None:
+        """
+        Args:
+            location: The temporal location of the device
+        """
         self.location = location
 
     def get_schedule(self, time: date) -> ScheduleList:
+        """Gets a schedule list for the date specified.
+        Args:
+            time: The time to query
+        Returns:
+            A list of schedules
+        """
         stats = self.location.get_sun_stats(time)
 
         return [
             {"time": stats["sunrise"], "state": ScheduleState.ON},
-            {"time": stats["sunset"], "state": ScheduleState.OFF}
+            {"time": stats["sunset"], "state": ScheduleState.OFF},
         ]
-    
+
     def get_next_on_time(self, time: datetime) -> datetime:
+        """Gets next ON state after the provided datetime which may roll over into the
+            next day
+        Args:
+            time: The datetime to search after
+        Returns:
+            A datetime object of the next ON state
+        """
 
         for item in self.get_schedule(time.date()):
-            if item["time"] > time and item["state"]  == ScheduleState.ON:
+            if item["time"] > time and item["state"] == ScheduleState.ON:
                 return item["time"]
-        
+
         for item in self.get_schedule((time + timedelta(days=1)).date()):
-            if item["time"] > time and item["state"]  == ScheduleState.ON:
+            if item["time"] > time and item["state"] == ScheduleState.ON:
                 return item["time"]
 
         raise RuntimeError("No next on time found")
 
-    
-    def get_state(self, time: datetime) -> Tuple[ScheduleState]:
-        """Returns an enum of the desired state"""
+    def get_state(self, time: datetime) -> ScheduleState:
+        """Returns the state at a given datetime
+        Args:
+            time: The datetime to query
+        Returns:
+            A state object
+        """
 
-        index = -1
-        for i, item in enumerate(self.get_schedule(time)):
+        state = None
+        for item in self.get_schedule(time):
             if time >= item["time"]:
-                index = i
                 state = item["state"]
 
-        if index == -1:
+        if not state:
             state = ScheduleState.ON
 
         return state
