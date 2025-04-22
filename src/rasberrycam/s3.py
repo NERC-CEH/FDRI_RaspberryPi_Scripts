@@ -1,26 +1,43 @@
 import logging
-from pathlib import Path
-from typing import TypedDict
-import boto3
-import boto3.session
 import os
 from datetime import datetime
-from botocore import credentials
+from pathlib import Path
+from typing import Optional, TypedDict
+
+import boto3
+import boto3.session
 from botocore.exceptions import NoCredentialsError
 
 logger = logging.getLogger(__name__)
 
+
 class AWSCredentials(TypedDict):
+    """Typed dictionary for AWS credentials"""
+
     access_key_id: str
     secret_access_key: str
     session_token: str
 
+
 def assume_role(
-    role_arn: str, access_key_id: str, secret_access_key: str, region: str, session_name: str = "rasberrycam-session"
+    role_arn: str,
+    access_key_id: str,
+    secret_access_key: str,
+    session_name: str = "rasberrycam-session",
+    duration_seconds: int = 3600,
 ) -> AWSCredentials | None:
     """
     Assume the AWS IAM role for S3 access
-    Returns session credentials dictionary or None if failed
+        Returns session credentials dictionary or None if failed
+
+    Args:
+        role_arn: The ARN of the AWS role to assume
+        access_key_id: The access key ID
+        secret_access_key: The access key secret
+        session_name: The name assigned to the session
+        duration_seconds: Length of the session in seconds
+    Returns:
+        None or a credentials dictionary
     """
     try:
         logger.info(f"Attempting to assume role: {role_arn}")
@@ -28,16 +45,13 @@ def assume_role(
         # Create a boto3 STS client with initial credentials
         sts_client = boto3.client(
             "sts",
-            region_name=region,
             aws_access_key_id=access_key_id,
             aws_secret_access_key=secret_access_key,
         )
 
         # Assume the role
         assumed_role = sts_client.assume_role(
-            RoleArn=role_arn,
-            RoleSessionName="rasberrycam-upload",
-            DurationSeconds=3600,  # 1 hour
+            RoleArn=role_arn, RoleSessionName=session_name, DurationSeconds=duration_seconds
         )
 
         credentials = assumed_role["Credentials"]
@@ -52,10 +66,18 @@ def assume_role(
         logger.error(f"Error assuming role: {e}")
         return None
 
-def upload_to_s3(file_path, bucket_name, region: str, credentials: AWSCredentials, object_name=None):
+
+def upload_to_s3(
+    file_path: Path, bucket_name: str, credentials: AWSCredentials, object_name: Optional[str] = None
+) -> bool:
+    """Uploads a file to an S3 bucket
+    Args:
+        file_path: Path to the file that will be uploaded
+        bucket_name: Name of the S3 bucket (Not the arn)
+        credentials: Credential dictionary to authenticate with
+        object_name: Hardcoded path to use in the S3 bucket.
     """
-    Upload a file to an S3 bucket with minimal data usage
-    """
+
     # If S3 object_name was not specified, use file_path
     if object_name is None:
         object_name = os.path.basename(file_path)
@@ -63,18 +85,14 @@ def upload_to_s3(file_path, bucket_name, region: str, credentials: AWSCredential
         object_name = f"images/{timestamp}_{object_name}"
 
     try:
-
         # Create S3 client with role credentials and reduced part size for multipart uploads
         s3_client = boto3.client(
             "s3",
-            region_name=region,
             aws_access_key_id=credentials["access_key_id"],
             aws_secret_access_key=credentials["secret_access_key"],
             aws_session_token=credentials["session_token"],
             config=boto3.session.Config(
-                s3={
-                    "multipart_threshold": 10 * 1024 * 1024
-                }  # Only use multipart for files >10MB
+                s3={"multipart_threshold": 10 * 1024 * 1024}  # Only use multipart for files >10MB
             ),
         )
 
@@ -102,22 +120,29 @@ def upload_to_s3(file_path, bucket_name, region: str, credentials: AWSCredential
 
 
 class S3Manager:
+    """Object for managing S3 sessions and uploading files"""
 
     access_key_id: str
     secret_access_key: str
-    region: str
     role_arn: str
 
     credentials: AWSCredentials | None = None
-    def __init__(self, access_key_id: str, secret_access_key: str, region: str, role_arn: str) -> None:
 
+    def __init__(self, access_key_id: str, secret_access_key: str, role_arn: str) -> None:
+        """
+        Args:
+            access_key_id: The access key ID
+            secret_access_key: The access key secret
+            role_arn: The ARN of the AWS role to assume
+        """
         self.access_key_id = access_key_id
         self.secret_access_key = secret_access_key
-        self.region = region
         self.role_arn = role_arn
-    
-    def assume_role(self) -> None:
-        self.credentials = assume_role(self.role_arn, self.access_key_id, self.secret_access_key, self.region)
 
-    def upload(self, file_path: Path, bucket_name: str, object_name: str|None = None) -> bool:
-        return upload_to_s3(file_path, bucket_name, self.region, self.credentials, object_name=object_name) #type:ignore
+    def assume_role(self) -> None:
+        """Assumes the role"""
+        self.credentials = assume_role(self.role_arn, self.access_key_id, self.secret_access_key)
+
+    def upload(self, file_path: Path, bucket_name: str, object_name: str | None = None) -> bool:
+        """Upload a file to S3"""
+        return upload_to_s3(file_path, bucket_name, self.credentials, object_name=object_name)  # type:ignore

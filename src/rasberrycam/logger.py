@@ -1,9 +1,11 @@
 import logging
 import logging.handlers
 from pathlib import Path
+
 from driutils.logger import LogFormatter
 
-def setup_logging(filename:Path, level: int = logging.INFO) -> None:
+
+def setup_logging(filename: Path, level: int = logging.INFO) -> None:
     """
     Set up basic logging configuration with a custom formatter.
 

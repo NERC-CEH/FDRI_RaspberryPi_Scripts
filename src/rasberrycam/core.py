@@ -1,28 +1,35 @@
 import logging
-from PIL import Image
-from dateutil.tz import tzlocal
-from rasberrycam import image
-from rasberrycam.camera import CameraInterface, LibCamera
-from rasberrycam.image import ImageManager, S3ImageManager
-from rasberrycam.s3 import S3Manager
-from rasberrycam.scheduler import FdriScheduler, ScheduleState
-from rasberrycam import rasberrypi
-from rasberrycam.temporal import TemporalLocation, get_timezone
-from platformdirs import user_data_dir
-from datetime import datetime
 import time
+from datetime import datetime
+
+from dateutil.tz import tzlocal
+
+from rasberrycam import rasberrypi
+from rasberrycam.camera import CameraInterface
+from rasberrycam.image import S3ImageManager
+from rasberrycam.scheduler import FdriScheduler, ScheduleState
 
 logger = logging.getLogger(__name__)
 
+
 class Rasberrycam:
-    """Core class for managing application"""
+    """Core class for managing a RasberryPi camera deployment"""
 
     scheduler: FdriScheduler
+    """The scheduler used to control the RasberryPi state"""
+
     camera: CameraInterface
+    """A physical/virtual camera to take images"""
+
     capture_interval: int
-    app_directory: str
-    s3_manager: S3Manager
+    """Frequency of image captures in seconds"""
+
     image_manager: S3ImageManager
+    """Image manager used to manipulate image files"""
+
+    _intervals_since_last_upload: int
+    """Tracks how many images have been captured since the last upload,
+        Allows the app to bulk upload images"""
 
     def __init__(
         self,
@@ -30,8 +37,15 @@ class Rasberrycam:
         camera: CameraInterface,
         image_manager: S3ImageManager,
         capture_interval: int = 300,
-        debug: bool = False
+        debug: bool = False,
     ) -> None:
+        """
+        Args:
+            scheduler: The scheduler used to control the RasberryPi state
+            camera: The camera interface used
+            image_manager: The image management object
+            debug: Flag to activate debug mode
+        """
         self.scheduler = scheduler
         self.camera = camera
         self.capture_interval = capture_interval
@@ -52,9 +66,11 @@ class Rasberrycam:
                 rasberrypi.shutdown(debug=self.debug)
                 if self.debug:
                     break
-            
+
             self.camera.capture_image(self.image_manager.get_pending_image_path())
 
-            self.image_manager.upload_pending(debug=self.debug)
-            
+            if len(self.image_manager.get_pending_images()) > 0:
+                rasberrypi.set_governer(rasberrypi.GovernorMode.PERFORMANCE, debug=self.debug)
+                self.image_manager.upload_pending(debug=self.debug)
+
             time.sleep(self.capture_interval)
