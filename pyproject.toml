@@ -1,16 +1,10 @@
 [build-system]
-requires = ["setuptools >= 61.0", "autosemver"]
+requires = ["setuptools", "autosemver"]
 build-backend = "setuptools.build_meta"
 
 [project]
-dependencies = [
-    "astral",
-    "autosemver",
-    "boto3",
-    "dri-utils[all] @ git+https://github.com/NERC-CEH/dri-utils.git",
-    "pillow",
-]
-requires-python = ">=3.12"
+dependencies = ["astral", "autosemver", "boto3", "platformdirs"]
+requires-python = ">=3.9"
 name = "dri-rasberrycam"
 dynamic = ["version"]
 # authors = [{ name = "John Doe", email = "johdoe@ceh.ac.uk" }]
