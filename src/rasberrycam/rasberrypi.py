@@ -15,6 +15,7 @@ class GovernorMode(StrEnum):
     USERSPACE = "userspace"
     CONSERVATIVE = "conservative"
 
+
 def set_governer(mode: GovernorMode, debug: bool = False) -> None:
     """Sets the governor mode.
     Args:
@@ -31,8 +32,10 @@ def set_governer(mode: GovernorMode, debug: bool = False) -> None:
             logger.info("Governor set")
             return
 
-        result = subprocess.call(f"echo '{mode}' | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor", shell=True)
-        
+        result = subprocess.call(
+            f"echo '{mode}' | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor", shell=True
+        )
+
         if result:
             raise RuntimeError(f"Failed to set governer to {mode}")
     except Exception as e:
@@ -55,7 +58,7 @@ def shutdown(debug: bool = False) -> None:
         subprocess.run("sync", shell=True, check=False)
 
         # Execute shutdown command
-        subprocess.run("sudo shutdown -h now")
+        subprocess.run("sudo shutdown -h now", check=False)
     except Exception as e:
         logger.error(f"Failed to shutdown: {e}")
 
