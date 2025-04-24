@@ -30,10 +30,10 @@ class ScheduleItem(TypedDict):
     state: ScheduleState
 
 
-type ScheduleListRaw = List[ScheduleItemRaw]
+ScheduleListRaw = List[ScheduleItemRaw]
 """Helper type for a list of raw schedule items"""
 
-type ScheduleList = List[ScheduleItem]
+ScheduleList = List[ScheduleItem]
 """Helper type for a list of schedule items"""
 
 

@@ -3,6 +3,7 @@ import os
 import subprocess
 from abc import ABC, abstractmethod
 from pathlib import Path
+from picamzero import Camera
 
 logger = logging.getLogger(__name__)
 
@@ -16,19 +17,14 @@ class CameraInterface(ABC):
     image_height: int
     """Image capture height in pixels"""
 
-    quality: int
-    """Image quality from 1-100"""
-
-    def __init__(self, quality: int, image_width: int, image_height: int) -> None:
+    def __init__(self, image_width: int, image_height: int) -> None:
         """
         Args:
-            quality: Picture quality from 1-100.
             image_width: Width of image in pixels.
             image_height: Height of image in pixels.
         """
         self.image_width = image_width
         self.image_height = image_height
-        self.quality = quality
 
     @abstractmethod
     def capture_image(self, *args, **kwargs) -> None:
@@ -54,8 +50,42 @@ class DebugCamera(CameraInterface):
         except Exception as e:
             logger.exception("Failed to write image", exc_info=e)
 
+class PiCamera(CameraInterface):
+    """Implementation for a Rasberry Pi camera module"""
+    
+    _camera: Camera
+    
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        
+        self._camera = Camera()
+        self._camera.still_size = (self.image_width, self.image_height)
+    
+    def capture_image(self, filepath: Path) -> None:
+        """Captures an image and writes it to file
+        Args:
+            filepath: The output destination
+        """
+        try:
+            self._camera.take_photo(filepath)
+        except Exception as e:
+            logger.exception("Failed to write image", exc_info=e)
+            
 
 class LibCamera(CameraInterface):
+    
+    quality: int
+    """Image quality from 1-100"""
+    
+    def __init__(self, quality:int, *args, **kwargs) -> None:
+        """
+        Args:
+            quality: The camera quality from 1-100
+        """
+        super().__init__(*args, **kwargs)
+        
+        self.quality = quality
+        
     def capture_image(self, filepath: Path) -> None:
         """Captures an image and writes it to file
         Args:
