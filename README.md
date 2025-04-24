@@ -30,3 +30,9 @@ To run the script ensure the following environment variables are present:
 - AWS_SECRET_ACCESS_KEY - AWS secret access key
 
 They may be loaded in a script or any other mechanism. Once they're loaded, the script may be run `python fdri_raspicam_v0.2.py`
+
+## Dependencies
+### Linux
+- python3
+- python3-picamzero
+- libcap-dev

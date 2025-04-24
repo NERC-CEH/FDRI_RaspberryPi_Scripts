@@ -4,7 +4,7 @@ import os
 
 from platformdirs import user_data_dir
 
-from rasberrycam.camera import DebugCamera
+from rasberrycam.camera import PiCamera
 from rasberrycam.core import Rasberrycam
 from rasberrycam.image import S3ImageManager
 from rasberrycam.location import Location
@@ -18,7 +18,7 @@ def main() -> None:
 
     location = Location(latitude=51.66023, longitude=-1.1125)
     scheduler = FdriScheduler(location)
-    camera = DebugCamera(85, 1024, 768)
+    camera = PiCamera(1024, 768)
 
     AWS_ROLE_ARN = os.environ["AWS_ROLE_ARN"]
     AWS_BUCKET_NAME = os.environ["AWS_BUCKET_NAME"]
