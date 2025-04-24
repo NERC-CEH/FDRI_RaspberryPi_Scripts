@@ -62,10 +62,7 @@ class Rasberrycam:
             state = self.scheduler.get_state(now)
 
             if state == ScheduleState.OFF:
-                rasberrypi.schedule_wakeup(self.scheduler.get_next_on_time(now), debug=self.debug)
-                rasberrypi.shutdown(debug=self.debug)
-                if self.debug:
-                    break
+                exit(0)
 
             self.camera.capture_image(self.image_manager.get_pending_image_path())
 

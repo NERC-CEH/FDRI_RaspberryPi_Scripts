@@ -15,7 +15,6 @@ class GovernorMode(StrEnum):
     USERSPACE = "userspace"
     CONSERVATIVE = "conservative"
 
-
 def set_governer(mode: GovernorMode, debug: bool = False) -> None:
     """Sets the governor mode.
     Args:
@@ -32,9 +31,12 @@ def set_governer(mode: GovernorMode, debug: bool = False) -> None:
             logger.info("Governor set")
             return
 
-        subprocess.call(["sudo", "cpufreq-set", "-g", mode], shell=True)
+        result = subprocess.call(f"echo '{mode}' | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor", shell=True)
+        
+        if result:
+            raise RuntimeError(f"Failed to set governer to {mode}")
     except Exception as e:
-        logger.error(f"Failed to set CPU governor: {e}")
+        logger.exception("Failed to set CPU governor", exc_info=e)
 
 
 def shutdown(debug: bool = False) -> None:
@@ -53,7 +55,7 @@ def shutdown(debug: bool = False) -> None:
         subprocess.run("sync", shell=True, check=False)
 
         # Execute shutdown command
-        subprocess.run(["sudo", "shutdown", "-h", "now"], shell=True, check=False)
+        subprocess.run("sudo shutdown -h now")
     except Exception as e:
         logger.error(f"Failed to shutdown: {e}")
 
@@ -70,6 +72,6 @@ def schedule_wakeup(wake_time: datetime, debug: bool = False) -> None:
         logger.info(f"Scheduling wakeup at {wake_time.strftime('%Y-%m-%d %H:%M:%S')}")
         if debug:
             logger.debug("Wakeup time set")
-        subprocess.run(["sudo", "rtcwake", "-m", "no", "-t", str(epoch_time)], shell=True, check=False)
+        subprocess.run(f"sudo rtcwake -m no -t {str(epoch_time)}", shell=True, check=False)
     except Exception as e:
         logger.error(f"Failed to schedule wakeup: {e}")
