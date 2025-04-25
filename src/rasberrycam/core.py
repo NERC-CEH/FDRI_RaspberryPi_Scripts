@@ -67,7 +67,9 @@ class Rasberrycam:
             self.camera.capture_image(self.image_manager.get_pending_image_path())
 
             if len(self.image_manager.get_pending_images()) > 0:
-                rasberrypi.set_governer(rasberrypi.GovernorMode.PERFORMANCE, debug=self.debug)
+                rasberrypi.set_governer(
+                    rasberrypi.GovernorMode.PERFORMANCE, debug=self.debug
+                )
                 self.image_manager.upload_pending(debug=self.debug)
 
             time.sleep(self.capture_interval)
