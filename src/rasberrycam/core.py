@@ -1,0 +1,75 @@
+import logging
+import time
+from datetime import datetime
+
+from dateutil.tz import tzlocal
+
+from rasberrycam import rasberrypi
+from rasberrycam.camera import CameraInterface
+from rasberrycam.image import S3ImageManager
+from rasberrycam.scheduler import FdriScheduler, ScheduleState
+
+logger = logging.getLogger(__name__)
+
+
+class Rasberrycam:
+    """Core class for managing a RasberryPi camera deployment"""
+
+    scheduler: FdriScheduler
+    """The scheduler used to control the RasberryPi state"""
+
+    camera: CameraInterface
+    """A physical/virtual camera to take images"""
+
+    capture_interval: int
+    """Frequency of image captures in seconds"""
+
+    image_manager: S3ImageManager
+    """Image manager used to manipulate image files"""
+
+    _intervals_since_last_upload: int
+    """Tracks how many images have been captured since the last upload,
+        Allows the app to bulk upload images"""
+
+    def __init__(
+        self,
+        scheduler: FdriScheduler,
+        camera: CameraInterface,
+        image_manager: S3ImageManager,
+        capture_interval: int = 300,
+        debug: bool = False,
+    ) -> None:
+        """
+        Args:
+            scheduler: The scheduler used to control the RasberryPi state
+            camera: The camera interface used
+            image_manager: The image management object
+            debug: Flag to activate debug mode
+        """
+        self.scheduler = scheduler
+        self.camera = camera
+        self.capture_interval = capture_interval
+        self.image_manager = image_manager
+        self._intervals_since_last_upload = 0
+        self.debug = debug
+
+    def run(self) -> None:
+        """Runs main loop of code until exited"""
+
+        rasberrypi.set_governer(rasberrypi.GovernorMode.ONDEMAND, debug=self.debug)
+        while True:
+            now = datetime.now(tzlocal())
+            state = self.scheduler.get_state(now)
+
+            if state == ScheduleState.OFF:
+                exit(0)
+
+            self.camera.capture_image(self.image_manager.get_pending_image_path())
+
+            if len(self.image_manager.get_pending_images()) > 0:
+                rasberrypi.set_governer(
+                    rasberrypi.GovernorMode.PERFORMANCE, debug=self.debug
+                )
+                self.image_manager.upload_pending(debug=self.debug)
+
+            time.sleep(self.capture_interval)

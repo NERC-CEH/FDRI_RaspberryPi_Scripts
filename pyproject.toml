@@ -1,8 +1,62 @@
 [build-system]
-requires = ["setuptools >= 77.0.3"]
+requires = ["setuptools", "autosemver"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rasberrycam"
-version = "v1.0"
-dependencies = ["boto3", "astral", "pillow", "pytz"]
+dependencies = ["astral", "autosemver", "boto3", "picamzero", "platformdirs"]
+requires-python = ">=3.9"
+name = "dri-rasberrycam"
+dynamic = ["version"]
+description = "An app for taking pictures with a rasberry pi and uploading them to S3"
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov", "parameterized"]
+lint = ["ruff"]
+dev = ["dri-rasberrycam[test,lint]"]
+
+[tool.setuptools.dynamic]
+version = { attr = "rasberrycam.__version__" }
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["rasberrycam*"]
+
+[tool.pytest.ini_options]
+
+addopts = "--cov=rasberrycam"
+markers = ["slow: Marks slow tests"]
+
+filterwarnings = [
+    "ignore::DeprecationWarning:autosemver.*:",
+    "ignore::DeprecationWarning:pkg_resources.*:",
+]
+
+[tool.coverage.run]
+omit = ["*__init__.py"]
+
+[tool.ruff]
+src = ["src", "tests"]
+include = ["src/**.py"]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "W",
+    "A",
+    "PLC",
+    "PLE",
+    "PLW",
+    "I",
+    "N816",
+    "ANN001",
+    "ANN201",
+    "ANN202",
+    "ANN205",
+    "ANN206",
+]
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
