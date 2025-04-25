@@ -7,8 +7,7 @@ dependencies = ["astral", "autosemver", "boto3", "picamzero", "platformdirs"]
 requires-python = ">=3.9"
 name = "dri-rasberrycam"
 dynamic = ["version"]
-# authors = [{ name = "John Doe", email = "johdoe@ceh.ac.uk" }]
-description = "A minimal setup for a template package."
+description = "An app for taking pictures with a rasberry pi and uploading them to S3"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "parameterized"]
