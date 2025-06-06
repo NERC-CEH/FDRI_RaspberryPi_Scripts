@@ -22,7 +22,7 @@ jobs:
         python-version: "3.12"
     - name: Install dependencies
       run: |
-        sudo apt install -y python3-libcamera python3-kms++ libcap-dev
+        sudo apt install -y libcap-dev
         python -m pip install --upgrade pip
         python -m pip install -e .
     - name: Lint with flake8
