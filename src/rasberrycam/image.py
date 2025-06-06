@@ -69,6 +69,7 @@ class ImageManager:
         """
         return f"{prefix}{datetime.now().strftime('%Y%m%d_%H%M%S')}{suffix}"
 
+
 class S3ImageManager(ImageManager):
     """Image manager that writes to S3"""
 

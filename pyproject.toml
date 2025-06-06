@@ -3,7 +3,7 @@ requires = ["setuptools", "autosemver"]
 build-backend = "setuptools.build_meta"
 
 [project]
-dependencies = ["astral", "autosemver", "boto3", "picamzero", "platformdirs"]
+dependencies = ["astral", "autosemver", "boto3", "picamzero", "platformdirs", "python-dotenv"]
 requires-python = ">=3.9"
 name = "dri-rasberrycam"
 dynamic = ["version"]
@@ -37,7 +37,7 @@ omit = ["*__init__.py"]
 
 [tool.ruff]
 src = ["src", "tests"]
-include = ["src/**.py"]
+include = ["src/**.py", "tests/**.py"]
 line-length = 120
 
 [tool.ruff.lint]

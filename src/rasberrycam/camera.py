@@ -1,4 +1,4 @@
-import logging 
+import logging
 import os
 import subprocess
 from abc import ABC, abstractmethod
@@ -30,7 +30,7 @@ class CameraInterface(ABC):
     @abstractmethod
     def capture_image(self, filepath: Path, flip: bool = False) -> None:
         """Abstract method defined for capturing an image with the camera
-        
+
         Args:
             filepath: The output file destination
             flip: Whether to flip the image vertically (upside down), defaults to False
@@ -117,7 +117,7 @@ class LibCamera(CameraInterface):
         try:
             # Use libcamera-still with reduced resolution and quality
             logger.info(f"Capturing image{'(flipped)' if flip else ''}")
-            
+
             cmd = [
                 "libcamera-still",
                 "--width",
@@ -129,11 +129,11 @@ class LibCamera(CameraInterface):
                 "-o",
                 filepath,
             ]
-            
+
             # Add vertical flip parameter if requested
             if flip:
                 cmd.append("--vflip")
-                
+
             subprocess.call(cmd)
 
             if os.path.exists(filepath):

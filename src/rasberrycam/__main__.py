@@ -2,6 +2,7 @@
 
 import os
 
+from dotenv import load_dotenv
 from platformdirs import user_data_dir
 
 from rasberrycam.camera import PiCamera
@@ -12,6 +13,8 @@ from rasberrycam.logger import setup_logging
 from rasberrycam.s3 import S3Manager
 from rasberrycam.scheduler import FdriScheduler
 
+load_dotenv()
+
 
 def main() -> None:
     """Example invocation of the RasberryCam class"""
@@ -20,6 +23,7 @@ def main() -> None:
     scheduler = FdriScheduler(location)
     camera = PiCamera(1024, 768)
 
+    # Option to set these in .env - they will load automatically
     AWS_ROLE_ARN = os.environ["AWS_ROLE_ARN"]
     AWS_BUCKET_NAME = os.environ["AWS_BUCKET_NAME"]
     AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
