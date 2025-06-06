@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from rasberrycam.location import Location
 
 
@@ -11,3 +10,5 @@ def test_get_sun_stats() -> None:
     stats = location.get_sun_stats(dt)
 
     assert "sunrise" in stats and "sunset" in stats
+    # We could go on to check for specific times
+    # But would just be testing astral...
