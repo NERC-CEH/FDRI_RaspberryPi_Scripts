@@ -23,6 +23,7 @@ def main() -> None:
     scheduler = FdriScheduler(location)
     camera = PiCamera(1024, 768)
 
+    # Option to set these in .env - they will load automatically
     AWS_ROLE_ARN = os.environ["AWS_ROLE_ARN"]
     AWS_BUCKET_NAME = os.environ["AWS_BUCKET_NAME"]
     AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
