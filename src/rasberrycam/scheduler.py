@@ -72,7 +72,6 @@ class FdriScheduler:
         Returns:
             A datetime object of the next ON state
         """
-
         for item in self.get_schedule(time.date()):
             if item["time"] > time and item["state"] == ScheduleState.ON:
                 return item["time"]

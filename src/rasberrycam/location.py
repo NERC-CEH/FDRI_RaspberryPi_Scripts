@@ -50,7 +50,7 @@ class Location(Observer):
 
     @staticmethod
     def _get_sun_stats(observer: Observer, date: date) -> SunStats:
-        """Gets sun statistics for a given obeserver and location
+        """Gets sun statistics for a given observer and location
         Args:
             observer: An observer or location to query
             date: The date to query
