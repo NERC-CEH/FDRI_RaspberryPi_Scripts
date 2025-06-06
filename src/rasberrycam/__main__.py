@@ -2,6 +2,7 @@
 
 import os
 
+from dotenv import load_dotenv
 from platformdirs import user_data_dir
 
 from rasberrycam.camera import PiCamera
@@ -11,6 +12,8 @@ from rasberrycam.location import Location
 from rasberrycam.logger import setup_logging
 from rasberrycam.s3 import S3Manager
 from rasberrycam.scheduler import FdriScheduler
+
+load_dotenv()
 
 
 def main() -> None:
