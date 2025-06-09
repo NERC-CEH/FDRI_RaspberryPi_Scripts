@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 
 from rasberrycam.s3 import S3Manager
+from sympy import false
 
 logger = logging.getLogger(__name__)
 
@@ -101,11 +102,13 @@ class S3ImageManager(ImageManager):
             self.s3_manager.assume_role()
             for image in pending_images:
                 try:
+                    upload_successful = false
                     if debug:
                         logger.info(f"Pretended to upload image {image} to bucket {self.bucket_name}")
                     else:
-                        self.s3_manager.upload(image, self.bucket_name)
-                    os.remove(image)
+                        upload_successful = self.s3_manager.upload(image, self.bucket_name)
+                    if upload_successful:
+                        os.remove(image)
                 except Exception as e:
                     logger.exception(f"Failed to upload image: {image}", exc_info=e)
         else:
