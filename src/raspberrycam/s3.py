@@ -23,7 +23,7 @@ def assume_role(
     role_arn: str,
     access_key_id: str,
     secret_access_key: str,
-    session_name: str = "rasberrycam-session",
+    session_name: str = "raspberrycam-session",
     duration_seconds: int = 3600,
 ) -> AWSCredentials | None:
     """
