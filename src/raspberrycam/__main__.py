@@ -1,4 +1,4 @@
-"""This file is run when `python -m rasberrycam` is called"""
+"""This file is run when `python -m raspberrycam` is called"""
 
 import os
 
@@ -32,7 +32,7 @@ def main() -> None:
     s3_manager = S3Manager(
         role_arn=AWS_ROLE_ARN, access_key_id=AWS_ACCESS_KEY_ID, secret_access_key=AWS_SECRET_ACCESS_KEY
     )
-    image_manager = S3ImageManager(AWS_BUCKET_NAME, s3_manager, user_data_dir("rasberrycam"))
+    image_manager = S3ImageManager(AWS_BUCKET_NAME, s3_manager, user_data_dir("raspberrycam"))
 
     setup_logging(filename=image_manager.log_file)
     app = Rasberrycam(scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=5, debug=False)

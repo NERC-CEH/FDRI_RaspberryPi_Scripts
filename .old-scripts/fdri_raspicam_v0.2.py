@@ -18,7 +18,7 @@ from astral.sun import sun
 BASE_DIRECTORY = "/home"
 SAVE_DIRECTORY = f"{BASE_DIRECTORY}/fdri/test_photos"
 PENDING_DIRECTORY = f"{BASE_DIRECTORY}/fdri/pending_uploads"
-BUCKET_NAME = "ukceh-fdri-staging-rasberrycam"
+BUCKET_NAME = "ukceh-fdri-staging-raspberrycam"
 CAPTURE_INTERVAL_DAY = 300  # Capture interval in seconds during day (5 min)
 CAPTURE_INTERVAL_NIGHT = 1800  # Longer interval at nightf (30 min)
 AWS_REGION = os.environ["AWS_REGION"]  # Set your AWS region here
@@ -467,7 +467,7 @@ def assume_role():
         # Assume the role
         assumed_role = sts_client.assume_role(
             RoleArn=AWS_ROLE_ARN,
-            RoleSessionName="rasberrycam-upload",
+            RoleSessionName="raspberrycam-upload",
             DurationSeconds=3600,  # 1 hour
         )
 
