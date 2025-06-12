@@ -24,7 +24,6 @@ include = ["raspberrycam*"]
 
 [tool.pytest.ini_options]
 
-addopts = "--cov=raspberrycam"
 markers = ["slow: Marks slow tests"]
 
 filterwarnings = [
