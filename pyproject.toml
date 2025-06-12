@@ -24,6 +24,7 @@ include = ["raspberrycam*"]
 
 [tool.pytest.ini_options]
 
+addopts = "-m 'not raspi'"
 markers = ["slow: Marks slow tests"]
 
 filterwarnings = [
