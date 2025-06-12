@@ -28,33 +28,47 @@ class CameraInterface(ABC):
         self.image_height = image_height
 
     @abstractmethod
-    def capture_image(self, filepath: Path, flip: bool = False) -> None:
+    def capture_image(self, filepath: Path, vflip: bool = True, hflip: bool = True) -> None:
         """Abstract method defined for capturing an image with the camera
 
         Args:
             filepath: The output file destination
-            flip: Whether to flip the image vertically (upside down), defaults to False
+            vflip: Whether to flip the image vertically (upside down), defaults to False
+            hflip: Whether to flip the image horizontally (mirror), defaults to False
         """
 
 
 class DebugCamera(CameraInterface):
     "Debug camera class used for end to end testing"
 
-    def capture_image(self, filepath: Path, flip: bool = False) -> None:
+    def capture_image(self, filepath: Path, vflip: bool = False, hflip: bool = False) -> None:
         """Captures a fake image and writes dummy text to a file.
         Args:
             filepath: The output file destination
-            flip: Whether to flip the image vertically, defaults to False
+            vflip: Whether to flip the image vertically, defaults to False
+            hflip: Whether to flip the image horizontally, defaults to False
         """
 
         try:
-            logger.info(f"Capturing image{'(flipped)' if flip else ''}")
+            flip_description = []
+            if vflip:
+                flip_description.append("vertically flipped")
+            if hflip:
+                flip_description.append("horizontally flipped")
+            
+            flip_text = f"({', '.join(flip_description)})" if flip_description else ""
+            logger.info(f"Capturing image{flip_text}")
 
             with open(filepath, "w") as f:
-                if flip:
-                    f.write("Pretend I'm an upside-down image")
-                else:
-                    f.write("Pretend I'm an image")
+                content = "Pretend I'm an image"
+                if vflip and hflip:
+                    content = "Pretend I'm an upside-down and mirrored image"
+                elif vflip:
+                    content = "Pretend I'm an upside-down image"
+                elif hflip:
+                    content = "Pretend I'm a mirrored image"
+                
+                f.write(content)
 
             logger.info(f"Wrote fake image to {filepath}")
         except Exception as e:
@@ -72,24 +86,29 @@ class PiCamera(CameraInterface):
         self._camera = Camera()
         self._camera.still_size = (self.image_width, self.image_height)
 
-    def capture_image(self, filepath: Path, flip: bool = False) -> None:
+    def capture_image(self, filepath: Path, vflip: bool = False, hflip: bool = False) -> None:
         """Captures an image and writes it to file
         Args:
             filepath: The output destination
-            flip: Whether to flip the image vertically, defaults to False
+            vflip: Whether to flip the image vertically, defaults to False
+            hflip: Whether to flip the image horizontally, defaults to False
         """
         try:
-            if flip:
-                # Save original orientation setting
-                original_vflip = self._camera.vflip
-                # Set vertical flip
-                self._camera.vflip = True
-                # Take photo
-                self._camera.take_photo(filepath)
-                # Restore original orientation setting
-                self._camera.vflip = original_vflip
-            else:
-                self._camera.take_photo(filepath)
+            # Save original orientation settings
+            original_vflip = self._camera.vflip
+            original_hflip = self._camera.hflip
+            
+            # Apply flip settings
+            self._camera.vflip = vflip
+            self._camera.hflip = hflip
+            
+            # Take photo
+            self._camera.take_photo(filepath)
+            
+            # Restore original orientation settings
+            self._camera.vflip = original_vflip
+            self._camera.hflip = original_hflip
+            
         except Exception as e:
             logger.exception("Failed to write image", exc_info=e)
 
@@ -107,16 +126,23 @@ class LibCamera(CameraInterface):
 
         self.quality = quality
 
-    def capture_image(self, filepath: Path, flip: bool = False) -> None:
+    def capture_image(self, filepath: Path, vflip: bool = False, hflip: bool = False) -> None:
         """Captures an image and writes it to file
         Args:
             filepath: The output destination
-            flip: Whether to flip the image vertically, defaults to False
+            vflip: Whether to flip the image vertically, defaults to False
+            hflip: Whether to flip the image horizontally, defaults to False
         """
 
         try:
-            # Use libcamera-still with reduced resolution and quality
-            logger.info(f"Capturing image{'(flipped)' if flip else ''}")
+            flip_description = []
+            if vflip:
+                flip_description.append("vertically flipped")
+            if hflip:
+                flip_description.append("horizontally flipped")
+            
+            flip_text = f"({', '.join(flip_description)})" if flip_description else ""
+            logger.info(f"Capturing image{flip_text}")
 
             cmd = [
                 "libcamera-still",
@@ -130,9 +156,11 @@ class LibCamera(CameraInterface):
                 filepath,
             ]
 
-            # Add vertical flip parameter if requested
-            if flip:
+            # Add flip parameters if requested
+            if vflip:
                 cmd.append("--vflip")
+            if hflip:
+                cmd.append("--hflip")
 
             subprocess.call(cmd)
 
