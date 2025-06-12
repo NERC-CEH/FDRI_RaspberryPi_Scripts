@@ -31,7 +31,7 @@ def test_s3_image_manager(tmp_path: Path) -> None:
     assert im.pending_directory == tmp_path / "pending_uploads"
 
 
-@patch("rasberrycam.s3.upload_to_s3")
+@patch("raspberrycam.s3.upload_to_s3")
 def test_upload_deletion(mock_upload: MagicMock, tmp_path: Path) -> None:
     s3 = S3Manager(role_arn=AWS_ROLE_ARN, access_key_id=AWS_ACCESS_KEY_ID, secret_access_key=AWS_SECRET_ACCESS_KEY)
 
