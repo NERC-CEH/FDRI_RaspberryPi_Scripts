@@ -1,0 +1,14 @@
+[Unit] 
+Description=Raspberry Pi Camera Service 
+After=network.target 
+
+[Service] 
+Type=simple 
+User=ukceh 
+WorkingDirectory=/home/ukceh/FDRI_RaspberryPi_Scripts 
+ExecStart=/bin/bash /home/ukceh/camera_startup.sh 
+Restart=always 
+RestartSec=10 
+
+[Install] 
+WantedBy=multi-user.target 
