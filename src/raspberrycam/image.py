@@ -6,7 +6,6 @@ from typing import List
 
 from raspberrycam.s3 import S3Manager
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -111,7 +110,7 @@ class S3ImageManager(ImageManager):
                         os.remove(image)
                 except Exception as e:
                     logger.exception(f"Failed to upload image: {image}", exc_info=e)
-                #Not considered removing images due to size constraint as images are <200 kb with 10 gb it would take
+                # Not considered removing images due to size constraint as images are <200 kb with 10 gb it would take
                 # ~20 years to fill
         else:
             logger.info("No images to upload")
