@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from rasberrycam.location import Location
+from raspberrycam.location import Location
 
 
 def test_get_sun_stats() -> None:

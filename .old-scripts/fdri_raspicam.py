@@ -309,7 +309,7 @@ def assume_role():
         # Assume the role
         assumed_role = sts_client.assume_role(
     RoleArn=AWS_ROLE_ARN,
-    RoleSessionName="rasberrycam-upload",
+    RoleSessionName="raspberrycam-upload",
     DurationSeconds=3600 # 1 hour
         )
         

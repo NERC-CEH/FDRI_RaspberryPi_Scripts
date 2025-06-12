@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 
 from dateutil.tz import tzlocal
 
-from rasberrycam.location import Location
-from rasberrycam.scheduler import FdriScheduler, ScheduleState
+from raspberrycam.location import Location
+from raspberrycam.scheduler import FdriScheduler, ScheduleState
 
 
 def test_scheduler() -> None:
