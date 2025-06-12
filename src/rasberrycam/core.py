@@ -53,6 +53,7 @@ class Rasberrycam:
         self._intervals_since_last_upload = 0
         self.debug = debug
 
+
     def run(self) -> None:
         """Runs main loop of code until exited"""
 
@@ -62,8 +63,34 @@ class Rasberrycam:
             state = self.scheduler.get_state(now)
 
             if state == ScheduleState.OFF:
-                exit(0)
+                # Instead of exiting, wait until the next ON time
+                logger.info("Camera is in OFF state (nighttime), waiting...")
+                next_on_time = self.scheduler.get_next_on_time(now)
+                logger.info(f"Next ON time: {next_on_time}")
 
+                # Sleep until close to the next ON time
+                sleep_duration = (next_on_time - now).total_seconds()
+                if sleep_duration > 0:
+                    # Sleep for most of the duration, but wake up occasionally to check
+                    # In case of time changes, system restarts, etc.
+                    while sleep_duration > 300:  # 5 minutes
+                        time.sleep(300)
+                        sleep_duration -= 300
+                        # Re-check the time in case something changed
+                        now = datetime.now(tzlocal())
+                        if self.scheduler.get_state(now) == ScheduleState.ON:
+                            break
+                        next_on_time = self.scheduler.get_next_on_time(now)
+                        sleep_duration = (next_on_time - now).total_seconds()
+
+                    # Sleep the remaining time
+                    if sleep_duration > 0:
+                        time.sleep(sleep_duration)
+
+                continue  # Go back to the start of the loop to check state again
+
+            # Camera is ON - take pictures
+            logger.info("Camera is in ON state, capturing image...")
             self.camera.capture_image(self.image_manager.get_pending_image_path())
 
             if len(self.image_manager.get_pending_images()) > 0:
@@ -71,3 +98,4 @@ class Rasberrycam:
                 self.image_manager.upload_pending(debug=self.debug)
 
             time.sleep(self.capture_interval)
+
