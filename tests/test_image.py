@@ -3,8 +3,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from rasberrycam.image import ImageManager, S3ImageManager
-from rasberrycam.s3 import S3Manager
+from raspberrycam.image import ImageManager, S3ImageManager
+from raspberrycam.s3 import S3Manager
 
 # There are two of these Image Managers, one local and one S3 based
 
