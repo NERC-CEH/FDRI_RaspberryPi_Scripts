@@ -3,14 +3,16 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import List
-from rasberrycam.s3 import S3Manager
+
+
+from raspberrycam.s3 import S3Manager
 
 logger = logging.getLogger(__name__)
 
 
 class ImageManager:
     """Class for managing images"""
-    
+
     base_directory: Path
     """Base directory of program"""
     pending_directory: Path
@@ -66,7 +68,7 @@ class ImageManager:
 
 class S3ImageManager(ImageManager):
     """Image manager that writes to S3"""
-    
+
     bucket_name: str
     """S3 bucket that gets written"""
     s3_manager: S3Manager
@@ -92,12 +94,16 @@ class S3ImageManager(ImageManager):
             self.s3_manager.assume_role()
             for image in pending_images:
                 try:
+                    upload_successful = False
                     if debug:
                         logger.info(f"Pretended to upload image {image} to bucket {self.bucket_name}")
                     else:
-                        self.s3_manager.upload(image, self.bucket_name)
-                    os.remove(image)
+                        upload_successful = self.s3_manager.upload(image, self.bucket_name)
+                    if upload_successful:
+                        os.remove(image)
                 except Exception as e:
                     logger.exception(f"Failed to upload image: {image}", exc_info=e)
+                # Not considered removing images due to size constraint as images are <200 kb with 10 gb it would take
+                # ~20 years to fill
         else:
             logger.info("No images to upload")

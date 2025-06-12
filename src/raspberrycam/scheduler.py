@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 from enum import Enum
 from typing import Callable, List, TypedDict
 
-from rasberrycam.location import Location
+from raspberrycam.location import Location
 
 logger = logging.getLogger(__name__)
 

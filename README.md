@@ -74,17 +74,17 @@ To run the bash script ensure the following environment variables are present:
 - AWS_ACCESS_KEY_ID - AWS access key ID
 - AWS_SECRET_ACCESS_KEY - AWS secret access key
 
-An example of how to run the code is in [./src/rasberrycam/\_\_main\_\_.py](./src/rasberrycam/__main__.py). This can be run as:
+An example of how to run the code is in [./src/rasberrycam/\_\_main\_\_.py](src/raspberrycam/__main__.py). This can be run as:
 
 ```shell
-python src/rasberrycam/__main__.py
+python src/raspberrycam/__main__.py
 ```
 
 or
 
 ```bash
 # Special invocation for a file called __main__.py
-python -m rasberrycam
+python -m raspberrycam
 ```
 
 Ensure that the latitude/longitude are set correctly or the python code may exit at the wrong time.
