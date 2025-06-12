@@ -5,13 +5,13 @@ import os
 from dotenv import load_dotenv
 from platformdirs import user_data_dir
 
-from rasberrycam.camera import PiCamera
-from rasberrycam.core import Rasberrycam
-from rasberrycam.image import S3ImageManager
-from rasberrycam.location import Location
-from rasberrycam.logger import setup_logging
-from rasberrycam.s3 import S3Manager
-from rasberrycam.scheduler import FdriScheduler
+from raspberrycam.camera import PiCamera
+from raspberrycam.core import Rasberrycam
+from raspberrycam.image import S3ImageManager
+from raspberrycam.location import Location
+from raspberrycam.logger import setup_logging
+from raspberrycam.s3 import S3Manager
+from raspberrycam.scheduler import FdriScheduler
 
 load_dotenv()
 

@@ -4,10 +4,10 @@ from datetime import datetime
 
 from dateutil.tz import tzlocal
 
-from rasberrycam import rasberrypi
-from rasberrycam.camera import CameraInterface
-from rasberrycam.image import S3ImageManager
-from rasberrycam.scheduler import FdriScheduler, ScheduleState
+from raspberrycam import raspberrypi
+from raspberrycam.camera import CameraInterface
+from raspberrycam.image import S3ImageManager
+from raspberrycam.scheduler import FdriScheduler, ScheduleState
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class Rasberrycam:
     def run(self) -> None:
         """Runs main loop of code until exited"""
 
-        rasberrypi.set_governer(rasberrypi.GovernorMode.ONDEMAND, debug=self.debug)
+        raspberrypi.set_governer(raspberrypi.GovernorMode.ONDEMAND, debug=self.debug)
         while True:
             now = datetime.now(tzlocal())
             state = self.scheduler.get_state(now)
@@ -94,7 +94,7 @@ class Rasberrycam:
             self.camera.capture_image(self.image_manager.get_pending_image_path())
 
             if len(self.image_manager.get_pending_images()) > 0:
-                rasberrypi.set_governer(rasberrypi.GovernorMode.PERFORMANCE, debug=self.debug)
+                raspberrypi.set_governer(raspberrypi.GovernorMode.PERFORMANCE, debug=self.debug)
                 self.image_manager.upload_pending(debug=self.debug)
 
             time.sleep(self.capture_interval)

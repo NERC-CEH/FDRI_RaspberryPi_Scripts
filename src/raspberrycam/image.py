@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-from rasberrycam.s3 import S3Manager
+from raspberrycam.s3 import S3Manager
 
 
 logger = logging.getLogger(__name__)
