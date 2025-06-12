@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-
 from raspberrycam.s3 import S3Manager
 
 logger = logging.getLogger(__name__)
@@ -62,7 +61,7 @@ class ImageManager:
         Returns:
             A filename string in format: SE_CARGN_01_CAM_E_YYYYMMDD_HHMMSS
         """
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return f"{prefix}SE_CARGN_01_CAM_E_{timestamp}{suffix}"
 
 

@@ -53,7 +53,6 @@ class Rasberrycam:
         self._intervals_since_last_upload = 0
         self.debug = debug
 
-
     def run(self) -> None:
         """Runs main loop of code until exited"""
 
@@ -98,4 +97,3 @@ class Rasberrycam:
                 self.image_manager.upload_pending(debug=self.debug)
 
             time.sleep(self.capture_interval)
-
