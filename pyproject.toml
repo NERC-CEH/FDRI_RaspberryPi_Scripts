@@ -5,26 +5,25 @@ build-backend = "setuptools.build_meta"
 [project]
 dependencies = ["astral", "autosemver", "boto3", "picamzero", "platformdirs", "python-dotenv"]
 requires-python = ">=3.9"
-name = "dri-rasberrycam"
+name = "dri-raspberrycam"
 dynamic = ["version"]
-description = "An app for taking pictures with a rasberry pi and uploading them to S3"
+description = "An app for taking pictures with a raspberry pi and uploading them to S3"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "parameterized"]
 lint = ["ruff"]
-dev = ["dri-rasberrycam[test,lint]"]
+dev = ["dri-raspberrycam[test,lint]"]
 
 [tool.setuptools.dynamic]
-version = { attr = "rasberrycam.__version__" }
+version = { attr = "raspberrycam.__version__" }
 
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["rasberrycam*"]
+include = ["raspberrycam*"]
 
 [tool.pytest.ini_options]
 
-addopts = "--cov=rasberrycam"
 markers = ["slow: Marks slow tests"]
 
 filterwarnings = [
