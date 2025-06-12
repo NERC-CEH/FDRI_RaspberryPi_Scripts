@@ -55,7 +55,7 @@ class DebugCamera(CameraInterface):
                 flip_description.append("vertically flipped")
             if hflip:
                 flip_description.append("horizontally flipped")
-            
+
             flip_text = f"({', '.join(flip_description)})" if flip_description else ""
             logger.info(f"Capturing image{flip_text}")
 
@@ -67,7 +67,7 @@ class DebugCamera(CameraInterface):
                     content = "Pretend I'm an upside-down image"
                 elif hflip:
                     content = "Pretend I'm a mirrored image"
-                
+
                 f.write(content)
 
             logger.info(f"Wrote fake image to {filepath}")
@@ -97,18 +97,18 @@ class PiCamera(CameraInterface):
             # Save original orientation settings
             original_vflip = self._camera.vflip
             original_hflip = self._camera.hflip
-            
+
             # Apply flip settings
             self._camera.vflip = vflip
             self._camera.hflip = hflip
-            
+
             # Take photo
             self._camera.take_photo(filepath)
-            
+
             # Restore original orientation settings
             self._camera.vflip = original_vflip
             self._camera.hflip = original_hflip
-            
+
         except Exception as e:
             logger.exception("Failed to write image", exc_info=e)
 
@@ -140,7 +140,7 @@ class LibCamera(CameraInterface):
                 flip_description.append("vertically flipped")
             if hflip:
                 flip_description.append("horizontally flipped")
-            
+
             flip_text = f"({', '.join(flip_description)})" if flip_description else ""
             logger.info(f"Capturing image{flip_text}")
 
