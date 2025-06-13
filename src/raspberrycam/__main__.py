@@ -1,12 +1,14 @@
 """This file is run when `python -m raspberrycam` is called"""
 
+import argparse
+import logging
 import os
 
 from dotenv import load_dotenv
 from platformdirs import user_data_dir
 
 from raspberrycam.camera import PiCamera
-from raspberrycam.core import Rasberrycam
+from raspberrycam.core import Raspberrycam
 from raspberrycam.image import S3ImageManager
 from raspberrycam.location import Location
 from raspberrycam.logger import setup_logging
@@ -16,7 +18,7 @@ from raspberrycam.scheduler import FdriScheduler
 load_dotenv()
 
 
-def main() -> None:
+def main(debug: bool = False) -> None:
     """Example invocation of the RasberryCam class"""
 
     location = Location(latitude=51.66023, longitude=-1.1125)
@@ -34,10 +36,18 @@ def main() -> None:
     )
     image_manager = S3ImageManager(AWS_BUCKET_NAME, s3_manager, user_data_dir("raspberrycam"))
 
-    setup_logging(filename=image_manager.log_file)
-    app = Rasberrycam(scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=5, debug=False)
+    log_level = logging.INFO
+    if debug:
+        log_level = logging.DEBUG
+    setup_logging(filename=image_manager.log_file, level=log_level)
+    app = Raspberrycam(
+        scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=800, debug=debug
+    )
     app.run()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", action="store_true")
+    args = parser.parse_args()
+    main(debug=args.debug)
