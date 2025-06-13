@@ -1,6 +1,5 @@
 import logging
 import os
-from datetime import datetime
 from pathlib import Path
 from typing import Optional, TypedDict
 
@@ -78,11 +77,10 @@ def upload_to_s3(
         object_name: Hardcoded path to use in the S3 bucket.
     """
 
-    # If S3 object_name was not specified, use file_path
+    # If S3 object_name was not specified, use file_path with images/ prefix only
     if object_name is None:
         object_name = os.path.basename(file_path)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        object_name = f"images/{timestamp}_{object_name}"
+        object_name = f"images/{object_name}"
 
     try:
         # Create S3 client with role credentials and reduced part size for multipart uploads
