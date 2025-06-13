@@ -95,7 +95,7 @@ class S3ImageManager(ImageManager):
                 try:
                     upload_successful = False
                     if debug:
-                        logger.info(f"Pretended to upload image {image} to bucket {self.bucket_name}")
+                        logger.debug(f"Pretended to upload image {image} to bucket {self.bucket_name}")
                     else:
                         upload_successful = self.s3_manager.upload(image, self.bucket_name)
                     if upload_successful:
