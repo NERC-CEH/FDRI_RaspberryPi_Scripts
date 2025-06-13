@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from dotenv import load_dotenv
 
+from raspberrycam.config import load_config
 from raspberrycam.image import ImageManager, S3ImageManager
 from raspberrycam.s3 import S3Manager
 
@@ -18,9 +19,14 @@ s3 = S3Manager(role_arn=AWS_ROLE_ARN, access_key_id=AWS_ACCESS_KEY_ID, secret_ac
 
 # There are two of these Image Managers, one local and one S3 based
 # This stores images locally
-def test_image_manager(tmp_path: Path) -> None:
+def test_image_manager(tmp_path: Path, config_file: Path) -> None:
     im = ImageManager(tmp_path)
     assert im.pending_directory == tmp_path / "pending_uploads"
+
+    config = load_config(config_file)
+    im = ImageManager(tmp_path, **config)
+    assert im.pending_directory == tmp_path / "pending_uploads"
+    assert im.site == config["site"]
 
 
 # This wraps around ImageManager and uploads to s3, deletes the original

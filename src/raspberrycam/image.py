@@ -19,7 +19,11 @@ class ImageManager:
     log_directory: Path
     """Directory for logs"""
 
-    def __init__(self, base_directory: Path) -> None:
+    site = "TEST"
+    camera = "T"
+    direction = "N"
+
+    def __init__(self, base_directory: Path, *args, **kwargs) -> None:
         """
         Args:
             base_directory: Base directory of the program
@@ -30,6 +34,11 @@ class ImageManager:
         self.pending_directory = base_directory / "pending_uploads"
         self.log_directory = base_directory / "logs"
         self.log_file = self.log_directory / "log.log"
+
+        # Installation-specific file naming conventions set in config.yaml
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
         self._initialize_directories()
 
     def _initialize_directories(self) -> None:
@@ -52,17 +61,15 @@ class ImageManager:
         """
         return [self.pending_directory / x for x in os.listdir(self.pending_directory.absolute())]
 
-    @staticmethod
-    def get_image_name(prefix: str = "", suffix: str = "") -> str:
+    def get_image_name(self) -> str:
         """Gets a filename using the SE_CARGN_01_CAM_E format with timestamp
-        Args:
-            prefix: Adds a prefix to the filename (optional, but format already includes SE_CARGN_01_CAM_E)
-            suffix: Adds a suffix or file extension to the filename
         Returns:
             A filename string in format: SE_CARGN_01_CAM_E_YYYYMMDD_HHMMSS
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"{prefix}SE_CARGN_01_CAM_E_{timestamp}{suffix}"
+        # TODO should 01 be part of the camera ID?
+        # https://github.com/NERC-CEH/FDRI_RaspberryPi_Scripts/issues/12
+        return f"{self.camera}_{self.site}_01_CAM_{self.direction}_{timestamp}"
 
 
 class S3ImageManager(ImageManager):
@@ -73,7 +80,7 @@ class S3ImageManager(ImageManager):
     s3_manager: S3Manager
     """S3 manager object for handling credentials and uploads"""
 
-    def __init__(self, bucket_name: str, s3_manager: S3Manager, *args) -> None:
+    def __init__(self, bucket_name: str, s3_manager: S3Manager, *args, **kwargs) -> None:
         """
         Args:
             bucket_name: S3 bucket that is written to
@@ -81,7 +88,7 @@ class S3ImageManager(ImageManager):
         """
         self.bucket_name = bucket_name
         self.s3_manager = s3_manager
-        super().__init__(*args)
+        super().__init__(*args, **kwargs)
 
     def upload_pending(self, debug: bool = False) -> None:
         """Upload files from the pending directory to S3

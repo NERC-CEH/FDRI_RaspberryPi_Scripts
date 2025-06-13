@@ -54,6 +54,18 @@ Where the "<>" has been replaced with the secrets. Ask @JacHam12 or @metazool if
 - AWS_ACCESS_KEY_ID - AWS access key ID
 - AWS_SECRET_ACCESS_KEY - AWS secret access key
 
+### Site-specific configuration
+
+Replace the values in `config.yaml` with those of your specific installation
+
+```
+site: CARGN
+lat: 51.8626453
+lon: -0.2031049
+camera: SE
+direction: E
+```
+
 ### Setup script
 
 `setup.sh` automates most steps of the setup - upgrades the Pi's packages with apt, installs our python code and configures it to run through `systemctl`.
