@@ -1,12 +1,14 @@
 import logging
 import time
 from datetime import datetime
+
 from dateutil.tz import tzlocal
 
 from raspberrycam import raspberrypi
 from raspberrycam.camera import CameraInterface
 from raspberrycam.image import S3ImageManager
 from raspberrycam.scheduler import FdriScheduler, ScheduleState
+from raspberrycam.face_blur import blur_faces  # <-- Import the face blurring utility
 
 logger = logging.getLogger(__name__)
 
@@ -89,11 +91,18 @@ class Rasberrycam:
 
             # Camera is ON - take pictures
             logger.info("Camera is in ON state, capturing image...")
-            # Flip the image vertically since the camera is mounted upside down
-            self.camera.capture_image(self.image_manager.get_pending_image_path(), vflip=True, hflip=False)
+            image_path = self.image_manager.get_pending_image_path()
+            self.camera.capture_image(image_path)
+
+            # Blur faces in the captured image before further processing
+            try:
+                blur_faces(image_path)
+                logger.info(f"Faces blurred in image {image_path}")
+            except Exception as e:
+                logger.exception(f"Failed to blur faces in {image_path}: {e}")
 
             if len(self.image_manager.get_pending_images()) > 0:
                 raspberrypi.set_governer(raspberrypi.GovernorMode.PERFORMANCE, debug=self.debug)
-                self.image_manager.upload_pending(debug=self.debug)
 
+            # Wait until the next capture interval
             time.sleep(self.capture_interval)
