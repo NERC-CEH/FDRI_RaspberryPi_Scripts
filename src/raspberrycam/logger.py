@@ -6,6 +6,8 @@ from pathlib import Path
 from types import TracebackType
 from typing import TypeAlias
 
+logging.getLogger("botocore").setLevel(logging.INFO)
+
 SysExcInfoType: TypeAlias = tuple[type[BaseException], BaseException, TracebackType | None] | tuple[None, None, None]
 
 
