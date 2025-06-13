@@ -91,11 +91,12 @@ class FdriScheduler:
         """
 
         state = None
+
         for item in self.get_schedule(time):
             if time >= item["time"]:
                 state = item["state"]
 
         if not state:
-            state = ScheduleState.ON
+            state = ScheduleState.OFF
 
         return state

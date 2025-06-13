@@ -25,3 +25,7 @@ def test_scheduler() -> None:
 
     # Let's just check it comes back as tomorrow
     assert on_time.date() == (dt + timedelta(days=1)).date()
+
+    dt = datetime(2025, 6, 6, 2, 0, 0, 0, tzinfo=tzlocal())
+    state = sched.get_state(dt)
+    assert state == ScheduleState.OFF
