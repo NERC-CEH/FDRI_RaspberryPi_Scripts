@@ -1,3 +1,4 @@
+   
 """This file is run when `python -m raspberrycam` is called"""
 
 import os
@@ -12,6 +13,7 @@ from raspberrycam.location import Location
 from raspberrycam.logger import setup_logging
 from raspberrycam.s3 import S3Manager
 from raspberrycam.scheduler import FdriScheduler
+from raspberrycam.face_blur import blur_faces  #Testing face blurring utility
 
 load_dotenv()
 
@@ -35,7 +37,16 @@ def main() -> None:
     image_manager = S3ImageManager(AWS_BUCKET_NAME, s3_manager, user_data_dir("raspberrycam"))
 
     setup_logging(filename=image_manager.log_file)
-    app = Rasberrycam(scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=5, debug=False)
+
+    # Add face blurring argument here and handle it in Rasberrycam
+    # app = Rasberrycam(scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=5, debug=False, blur_faces=blur_faces)
+    app = Rasberrycam(
+        scheduler=scheduler,
+        camera=camera,
+        image_manager=image_manager,
+        capture_interval=5,
+        debug=False
+    )
     app.run()
 
 
