@@ -8,7 +8,7 @@ from raspberrycam import raspberrypi
 from raspberrycam.camera import CameraInterface
 from raspberrycam.image import S3ImageManager
 from raspberrycam.scheduler import FdriScheduler, ScheduleState
-from raspberrycam.face_blur import blur_faces  # <-- Import the face blurring utility
+from raspberrycam.face_blur import blur_faces_and_bodies
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ class Rasberrycam:
 
             # Blur faces in the captured image before further processing
             try:
-                blur_faces(image_path)
+                blur_faces_and_bodies(image_path)
                 logger.info(f"Faces blurred in image {image_path}")
             except Exception as e:
                 logger.exception(f"Failed to blur faces in {image_path}: {e}")

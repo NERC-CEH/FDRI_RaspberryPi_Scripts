@@ -19,7 +19,7 @@ from raspberrycam.face_blur import blur_faces  # Testing face blurring utility
 load_dotenv()
 
 
-def main(debug: bool = False) -> None:
+def main(debug: bool = True) -> None:
     """Example invocation of the Raspberrycam class"""
 
     location = Location(latitude=51.66023, longitude=-1.1125)
