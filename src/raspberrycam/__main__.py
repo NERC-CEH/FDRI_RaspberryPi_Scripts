@@ -20,7 +20,11 @@ load_dotenv()
 
 
 def main(debug: bool = False) -> None:
+Face-blur-test
     """Example invocation of the Raspberrycam class"""
+=======
+    """Example invocation of the RasberryCam class"""
+main
 
     location = Location(latitude=51.66023, longitude=-1.1125)
     scheduler = FdriScheduler(location)
@@ -41,6 +45,7 @@ def main(debug: bool = False) -> None:
     if debug:
         log_level = logging.DEBUG
     setup_logging(filename=image_manager.log_file, level=log_level)
+Face-blur-test
 
     # Add face blurring argument here and handle it in Raspberrycam if needed in the future.
     app = Raspberrycam(
@@ -50,6 +55,10 @@ def main(debug: bool = False) -> None:
         capture_interval=800,
         debug=debug,
         # blur_faces=blur_faces,  # Uncomment and handle in Raspberrycam class if blur_faces is to be used
+=======
+    app = Raspberrycam(
+        scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=800, debug=debug
+main
     )
     app.run()
 

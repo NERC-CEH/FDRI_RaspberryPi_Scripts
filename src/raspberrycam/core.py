@@ -13,7 +13,7 @@ from raspberrycam.face_blur import blur_faces_and_bodies
 logger = logging.getLogger(__name__)
 
 
-class Rasberrycam:
+class Raspberrycam:
     """Core class for managing a RasberryPi camera deployment"""
 
     scheduler: FdriScheduler
@@ -38,6 +38,7 @@ class Rasberrycam:
         camera: CameraInterface,
         image_manager: S3ImageManager,
         capture_interval: int = 300,
+        sleep_interval: int = 300,
         debug: bool = False,
     ) -> None:
         """
@@ -50,6 +51,7 @@ class Rasberrycam:
         self.scheduler = scheduler
         self.camera = camera
         self.capture_interval = capture_interval
+        self.sleep_interval = sleep_interval
         self.image_manager = image_manager
         self._intervals_since_last_upload = 0
         self.debug = debug
@@ -63,6 +65,7 @@ class Rasberrycam:
             state = self.scheduler.get_state(now)
 
             if state == ScheduleState.OFF:
+                sleep_for = self.sleep_interval
                 # Instead of exiting, wait until the next ON time
                 logger.info("Camera is in OFF state (nighttime), waiting...")
                 next_on_time = self.scheduler.get_next_on_time(now)
@@ -73,20 +76,23 @@ class Rasberrycam:
                 if sleep_duration > 0:
                     # Sleep for most of the duration, but wake up occasionally to check
                     # In case of time changes, system restarts, etc.
-                    while sleep_duration > 300:  # 5 minutes
-                        time.sleep(300)
-                        sleep_duration -= 300
+                    logger.debug(f"waiting for {sleep_duration}")
+                    while sleep_duration > sleep_for:  # 5 minutes
+                        logger.debug(f"sleeping for {sleep_for} seconds")
+                        time.sleep(sleep_for)
+                        sleep_duration -= sleep_for
                         # Re-check the time in case something changed
                         now = datetime.now(tzlocal())
                         if self.scheduler.get_state(now) == ScheduleState.ON:
                             break
                         next_on_time = self.scheduler.get_next_on_time(now)
                         sleep_duration = (next_on_time - now).total_seconds()
+                        logger.debug(f"now waiting for {sleep_duration}")
 
                     # Sleep the remaining time
                     if sleep_duration > 0:
                         time.sleep(sleep_duration)
-
+                        logger.debug(f"sleeping for {sleep_duration}")
                 continue  # Go back to the start of the loop to check state again
 
             # Camera is ON - take pictures

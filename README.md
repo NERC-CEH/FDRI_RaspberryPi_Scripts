@@ -37,6 +37,31 @@ When there is a code change you can then run:
 git pull
 ```
 
+The code expects some environment variables to connect to AWS.
+These are set in the file `.env`
+
+```shell .env
+AWS_ROLE_ARN="<>"
+AWS_BUCKET_NAME="<>"
+AWS_ACCESS_KEY_ID="<>"
+AWS_SECRET_ACCESS_KEY="<>"
+```
+
+Where the "<>" has been replaced with the secrets. Ask @JacHam12 or @metazool if you don't know what they are.
+
+- AWS_ROLE_ARN - The uploader role
+- AWS_BUCKET_NAME - Name of the bucket that receives the images
+- AWS_ACCESS_KEY_ID - AWS access key ID
+- AWS_SECRET_ACCESS_KEY - AWS secret access key
+
+### Setup script
+
+`setup.sh` automates most steps of the setup - upgrades the Pi's packages with apt, installs our python code and configures it to run through `systemctl`.
+
+```shell
+bash setup.sh
+```
+
 ### Create a Virtual Environment
 
 Because `libcamera` is installed as a linux package it will be installed into the default `python3` installation so you need an extra flag when creating a virtual environment
@@ -57,22 +82,7 @@ pip install -e .
 ```
 
 ## How to Run the Code
-The code expects some environment variables, so create a bash script with the contents:
-```shell
-export AWS_ROLE_ARN="<>"
-export AWS_BUCKET_NAME="<>"
-export AWS_ACCESS_KEY_ID="<>"
-export AWS_SECRET_ACCESS_KEY="<>"
-```
 
-Where the "<>" has been replaced with the secrets. Ask WP2 if you don't know what they are.
-
-To run the bash script ensure the following environment variables are present:
-
-- AWS_ROLE_ARN - The uploader role
-- AWS_BUCKET_NAME - Name of the bucket that receives the images
-- AWS_ACCESS_KEY_ID - AWS access key ID
-- AWS_SECRET_ACCESS_KEY - AWS secret access key
 
 An example of how to run the code is in [./src/rasberrycam/\_\_main\_\_.py](src/raspberrycam/__main__.py). This can be run as:
 
