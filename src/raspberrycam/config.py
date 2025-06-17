@@ -12,6 +12,7 @@ class Config:
     lat: float
     camera: str
     direction: str
+    interval: int
 
 
 class ConfigurationError(Exception):
@@ -27,9 +28,10 @@ def load_config(config_file: Optional[str] = "config.yaml") -> dict:
         # TODO decide whether to exit or assume defaults, for now:
         raise ConfigurationError(err)
 
+    try:
+        return Config(**config)
+
     except TypeError as err:
         logging.error(f"{config_file} did not contain all the information it needs")
         logging.error(err)
         raise ConfigurationError(err)
-
-    return Config(**config)
