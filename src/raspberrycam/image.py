@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
+from raspberrycam.config import Config
 from raspberrycam.s3 import S3Manager
 
 logger = logging.getLogger(__name__)
@@ -19,11 +20,7 @@ class ImageManager:
     log_directory: Path
     """Directory for logs"""
 
-    site = "TEST"
-    camera = "T"
-    direction = "N"
-
-    def __init__(self, base_directory: Path, *args, **kwargs) -> None:
+    def __init__(self, base_directory: Path, config: Config) -> None:
         """
         Args:
             base_directory: Base directory of the program
@@ -36,8 +33,7 @@ class ImageManager:
         self.log_file = self.log_directory / "log.log"
 
         # Installation-specific file naming conventions set in config.yaml
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+        self.config = config
 
         self._initialize_directories()
 
@@ -67,9 +63,10 @@ class ImageManager:
             A filename string in format: SE_CARGN_01_CAM_E_YYYYMMDD_HHMMSS
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        config = self.config
         # TODO should 01 be part of the camera ID?
         # https://github.com/NERC-CEH/FDRI_RaspberryPi_Scripts/issues/12
-        return f"{self.camera}_{self.site}_01_CAM_{self.direction}_{timestamp}"
+        return f"{config.camera}_{config.site}_01_CAM_{config.direction}_{timestamp}"
 
 
 class S3ImageManager(ImageManager):
