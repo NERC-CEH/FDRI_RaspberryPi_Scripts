@@ -45,7 +45,6 @@ main
     if debug:
         log_level = logging.DEBUG
     setup_logging(filename=image_manager.log_file, level=log_level)
-Face-blur-test
 
     # Add face blurring argument here and handle it in Raspberrycam if needed in the future.
     app = Raspberrycam(
@@ -55,10 +54,6 @@ Face-blur-test
         capture_interval=800,
         debug=debug,
         # blur_faces=blur_faces,  # Uncomment and handle in Raspberrycam class if blur_faces is to be used
-=======
-    app = Raspberrycam(
-        scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=800, debug=debug
-main
     )
     app.run()
 
