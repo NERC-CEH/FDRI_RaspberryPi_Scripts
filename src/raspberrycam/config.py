@@ -1,10 +1,12 @@
 import logging
-from typing import Optional, TypedDict
+from dataclasses import dataclass
+from typing import Optional
 
 import yaml
 
 
-class Config(TypedDict):
+@dataclass
+class Config:
     site: str
     lon: float
     lat: float
@@ -12,12 +14,22 @@ class Config(TypedDict):
     direction: str
 
 
+class ConfigurationError(Exception):
+    pass
+
+
 def load_config(config_file: Optional[str] = "config.yaml") -> dict:
     try:
         with open(config_file, "r") as conf_file:
             config = yaml.safe_load(conf_file.read())
-    except (FileNotFoundError, TypeError):
-        logging.warning(f"Configuration file not found at {config_file}")
+    except FileNotFoundError as err:
+        logging.error(f"Configuration file not found at {config_file}")
         # TODO decide whether to exit or assume defaults, for now:
-        raise
-    return Config(config)
+        raise ConfigurationError(err)
+
+    except TypeError as err:
+        logging.error(f"{config_file} did not contain all the information it needs")
+        logging.error(err)
+        raise ConfigurationError(err)
+
+    return Config(**config)
