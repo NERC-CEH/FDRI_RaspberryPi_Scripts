@@ -23,9 +23,14 @@ load_dotenv()
 def main(debug: bool = False, interval: int = 800) -> None:
     """Example invocation of the RasberryCam class"""
 
-    # TODO add some validation here - complain if keys aren't set
+    # This will throw an error and complain if keys aren't set,
+    # Or if the config file can't be found.
     config = load_config("config/config.yaml")
-    location = Location(latitude=config["lat"], longitude=config["lon"])
+
+    if config.interval:
+        interval = config.interval
+
+    location = Location(latitude=config.lat, longitude=config.lon)
     scheduler = FdriScheduler(location)
     camera = PiCamera(1024, 768)
 
@@ -39,7 +44,7 @@ def main(debug: bool = False, interval: int = 800) -> None:
         role_arn=AWS_ROLE_ARN, access_key_id=AWS_ACCESS_KEY_ID, secret_access_key=AWS_SECRET_ACCESS_KEY
     )
     # The other config options form part of the filename
-    image_manager = S3ImageManager(AWS_BUCKET_NAME, s3_manager, user_data_dir("raspberrycam"), **config)
+    image_manager = S3ImageManager(AWS_BUCKET_NAME, s3_manager, user_data_dir("raspberrycam"), config)
 
     log_level = logging.INFO
     if debug:

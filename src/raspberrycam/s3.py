@@ -77,6 +77,11 @@ def upload_to_s3(
         object_name: Hardcoded path to use in the S3 bucket.
     """
 
+    # If we couldn't authenticate, stop trying here
+    if not credentials:
+        logging.error("Can't authenticate to AWS. Have you checked the .env file?")
+        exit(1)
+
     # If S3 object_name was not specified, use file_path with images/ prefix only
     if object_name is None:
         object_name = os.path.basename(file_path)
