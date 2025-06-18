@@ -10,7 +10,7 @@ class Config:
     site: str
     lon: float
     lat: float
-    camera: str
+    catchment: str
     direction: str
     interval: int
 

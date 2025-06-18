@@ -66,7 +66,7 @@ class ImageManager:
         config = self.config
         # TODO should 01 be part of the camera ID?
         # https://github.com/NERC-CEH/FDRI_RaspberryPi_Scripts/issues/12
-        return f"catchment={config.camera}/site={config.site}/compound=01/type=CAM/direction={config.direction}/date={datetime.now().strftime('%Y-%m-%d')}/{config.camera}_{config.site}_01_CAM_{config.direction}_{timestamp}"
+        return f"catchment={config.catchment}/site={config.site}/compound=01/type=CAM/direction={config.direction}/date={datetime.now().strftime('%Y-%m-%d')}/{config.camera}_{config.site}_01_CAM_{config.direction}_{timestamp}"
 
 
 class S3ImageManager(ImageManager):
