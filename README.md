@@ -130,3 +130,4 @@ python -m raspberrycam
 
 Ensure that the latitude/longitude are set correctly or the python code may exit at the wrong time.
 
+# fdri_assets
