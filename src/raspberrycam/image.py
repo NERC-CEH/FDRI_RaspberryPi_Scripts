@@ -58,15 +58,15 @@ class ImageManager:
         return [self.pending_directory / x for x in os.listdir(self.pending_directory.absolute())]
 
     def get_image_name(self) -> str:
-        """Gets a filename using the SE_CARGN_01_PICAM_E format with timestamp
+        """Gets a filename using the SE_CARGN_01_PCAM_E format with timestamp
         Returns:
-            A filename string in format: SE_CARGN_01_PICAM_E_YYYYMMDD_HHMMSS
+            A filename string in format: SE_CARGN_01_PCAM_E_YYYYMMDD_HHMMSS
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         config = self.config
         # TODO should 01 be part of the camera ID?
         # https://github.com/NERC-CEH/FDRI_RaspberryPi_Scripts/issues/12
-        return f"{config.catchment}_{config.site}_01_PICAM_{config.direction}_{timestamp}"
+        return f"{config.catchment}_{config.site}_01_PCAM_{config.direction}_{timestamp}"
 
 
 class S3ImageManager(ImageManager):
@@ -92,7 +92,7 @@ class S3ImageManager(ImageManager):
         Returns the partitioned path with just the filename appended"""
         config = self.config
         filename = Path(image).name
-        return f"catchment={config.catchment}/site={config.site}/compound=01/type=PICAM/direction={config.direction}/date={datetime.now().strftime('%Y-%m-%d')}/{filename}"  # noqa: E501
+        return f"catchment={config.catchment}/site={config.site}/compound=01/type=PCAM/direction={config.direction}/date={datetime.now().strftime('%Y-%m-%d')}/{filename}"  # noqa: E501
 
     def upload_pending(self, debug: bool = False) -> None:
         """Upload files from the pending directory to S3
