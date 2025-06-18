@@ -1,5 +1,6 @@
-# FDRI_Development_Scripts
-This is the repository where scripts will be inputted for review before pushing to the main repo 
+# FDRI Raspberry Pi Camera
+
+This repository holds the script and configuration for setting up a Raspberry Pi camera to monitor the environment on one of the FDRI sites.
 
 ## Getting set up
 
@@ -11,9 +12,9 @@ sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install python3 python3-picamzero python3-libcamera libcap-dev -y
 ```
 
-### Get the Repository Onto a Rasberry PI
+## Deploy on a Raspberry PI
 
-The best way to get the code onto a Rasberry PI and ensure it stays up to date is to pull the git repository to it. To do this you need an internet connection.
+Load the code onto a Raspberry Pi by pulling the git repository to it. To do this you need an internet connection.
 
 First, create a [deploy key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys#deploy-keys) on the GitHub repository.
 
@@ -37,6 +38,24 @@ When there is a code change you can then run:
 git pull
 ```
 
+## Configuration
+
+### Site configuration
+
+The file `config.yaml` in the `config` directory contains a description of the site. It looks like this:
+
+```
+site: CARGN
+lat: 51.8626453
+lon: -0.2031049
+camera: SE
+direction: E
+interval: 3000
+```
+
+This is used to control the capture interval, create the filenames, and use the location's sun times to tell when to stop and start taking pictures.
+
+### Environment variables
 The code expects some environment variables to connect to AWS.
 These are set in the file `.env`
 
@@ -53,6 +72,18 @@ Where the "<>" has been replaced with the secrets. Ask @JacHam12 or @metazool if
 - AWS_BUCKET_NAME - Name of the bucket that receives the images
 - AWS_ACCESS_KEY_ID - AWS access key ID
 - AWS_SECRET_ACCESS_KEY - AWS secret access key
+
+### Site-specific configuration
+
+Replace the values in `config.yaml` with those of your specific installation
+
+```
+site: CARGN
+lat: 51.8626453
+lon: -0.2031049
+camera: SE
+direction: E
+```
 
 ### Setup script
 

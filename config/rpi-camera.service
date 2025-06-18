@@ -4,7 +4,7 @@ After=network.target
 
 [Service] 
 Type=simple 
-User=ukceh 
+User=ukceh
 WorkingDirectory=/home/ukceh/FDRI_RaspberryPi_Scripts 
 ExecStart=/bin/bash /home/ukceh/camera_startup.sh 
 Restart=always 
