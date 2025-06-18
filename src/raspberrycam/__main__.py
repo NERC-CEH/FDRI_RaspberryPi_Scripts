@@ -41,7 +41,7 @@ def main(debug: bool = False) -> None:
         log_level = logging.DEBUG
     setup_logging(filename=image_manager.log_file, level=log_level)
     app = Raspberrycam(
-        scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=800, debug=debug
+        scheduler=scheduler, camera=camera, image_manager=image_manager, capture_interval=10800, debug=debug
     )
     app.run()
 
