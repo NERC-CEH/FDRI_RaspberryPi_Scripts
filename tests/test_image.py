@@ -2,8 +2,10 @@ import os
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 from dotenv import load_dotenv
 
+from raspberrycam.config import load_config
 from raspberrycam.image import ImageManager, S3ImageManager
 from raspberrycam.s3 import S3Manager
 
@@ -18,24 +20,32 @@ s3 = S3Manager(role_arn=AWS_ROLE_ARN, access_key_id=AWS_ACCESS_KEY_ID, secret_ac
 
 # There are two of these Image Managers, one local and one S3 based
 # This stores images locally
-def test_image_manager(tmp_path: Path) -> None:
-    im = ImageManager(tmp_path)
+def test_image_manager(tmp_path: Path, config_file: Path) -> None:
+    with pytest.raises(TypeError):
+        ImageManager(tmp_path)
+
+    config = load_config(config_file)
+    im = ImageManager(tmp_path, config)
     assert im.pending_directory == tmp_path / "pending_uploads"
+    assert im.config.site == config.site
 
 
 # This wraps around ImageManager and uploads to s3, deletes the original
 # If upload fails deletion is skipped, we should see a log message
-def test_s3_image_manager(tmp_path: Path) -> None:
+def test_s3_image_manager(tmp_path: Path, config_file: Path) -> None:
     s3 = S3Manager(role_arn=AWS_ROLE_ARN, access_key_id=AWS_ACCESS_KEY_ID, secret_access_key=AWS_SECRET_ACCESS_KEY)
-    im = S3ImageManager(AWS_BUCKET_NAME, s3, tmp_path)
+    config = load_config(config_file)
+    im = S3ImageManager(AWS_BUCKET_NAME, s3, tmp_path, config)
     assert im.pending_directory == tmp_path / "pending_uploads"
 
 
 @patch("raspberrycam.s3.upload_to_s3")
-def test_upload_deletion(mock_upload: MagicMock, tmp_path: Path) -> None:
+def test_upload_deletion(mock_upload: MagicMock, tmp_path: Path, config_file: Path) -> None:
+    config = load_config(config_file)
+
     s3 = S3Manager(role_arn=AWS_ROLE_ARN, access_key_id=AWS_ACCESS_KEY_ID, secret_access_key=AWS_SECRET_ACCESS_KEY)
 
-    s3im = S3ImageManager(AWS_BUCKET_NAME, s3, tmp_path)
+    s3im = S3ImageManager(AWS_BUCKET_NAME, s3, tmp_path, config)
 
     # create dummy file in our temp directory
     pending_dir = tmp_path / "pending_uploads"

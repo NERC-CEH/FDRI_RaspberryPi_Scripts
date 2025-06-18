@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
+from raspberrycam.config import Config
 from raspberrycam.s3 import S3Manager
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class ImageManager:
     log_directory: Path
     """Directory for logs"""
 
-    def __init__(self, base_directory: Path) -> None:
+    def __init__(self, base_directory: Path, config: Config) -> None:
         """
         Args:
             base_directory: Base directory of the program
@@ -30,6 +31,10 @@ class ImageManager:
         self.pending_directory = base_directory / "pending_uploads"
         self.log_directory = base_directory / "logs"
         self.log_file = self.log_directory / "log.log"
+
+        # Installation-specific file naming conventions set in config.yaml
+        self.config = config
+
         self._initialize_directories()
 
     def _initialize_directories(self) -> None:
@@ -52,17 +57,16 @@ class ImageManager:
         """
         return [self.pending_directory / x for x in os.listdir(self.pending_directory.absolute())]
 
-    @staticmethod
-    def get_image_name(prefix: str = "", suffix: str = "") -> str:
-        """Gets a filename using the SE_CARGN_01_CAM_E format with timestamp
-        Args:
-            prefix: Adds a prefix to the filename (optional, but format already includes SE_CARGN_01_CAM_E)
-            suffix: Adds a suffix or file extension to the filename
+    def get_image_name(self) -> str:
+        """Gets a filename using the SE_CARGN_01_PCAM_E format with timestamp
         Returns:
-            A filename string in format: SE_CARGN_01_CAM_E_YYYYMMDD_HHMMSS
+            A filename string in format: SE_CARGN_01_PCAM_E_YYYYMMDD_HHMMSS
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"{prefix}SE_CARGN_01_CAM_E_{timestamp}{suffix}"
+        config = self.config
+        # TODO should 01 be part of the camera ID?
+        # https://github.com/NERC-CEH/FDRI_RaspberryPi_Scripts/issues/12
+        return f"{config.catchment}_{config.site}_01_PCAM_{config.direction}_{timestamp}"
 
 
 class S3ImageManager(ImageManager):
@@ -73,7 +77,7 @@ class S3ImageManager(ImageManager):
     s3_manager: S3Manager
     """S3 manager object for handling credentials and uploads"""
 
-    def __init__(self, bucket_name: str, s3_manager: S3Manager, *args) -> None:
+    def __init__(self, bucket_name: str, s3_manager: S3Manager, *args, **kwargs) -> None:
         """
         Args:
             bucket_name: S3 bucket that is written to
@@ -81,7 +85,14 @@ class S3ImageManager(ImageManager):
         """
         self.bucket_name = bucket_name
         self.s3_manager = s3_manager
-        super().__init__(*args)
+        super().__init__(*args, **kwargs)
+
+    def partition_path(self, image: str) -> None:
+        """Accepts an absolute path to the image
+        Returns the partitioned path with just the filename appended"""
+        config = self.config
+        filename = Path(image).name
+        return f"catchment={config.catchment}/site={config.site}/compound=01/type=PCAM/direction={config.direction}/date={datetime.now().strftime('%Y-%m-%d')}/{filename}"  # noqa: E501
 
     def upload_pending(self, debug: bool = False) -> None:
         """Upload files from the pending directory to S3
@@ -93,11 +104,13 @@ class S3ImageManager(ImageManager):
             self.s3_manager.assume_role()
             for image in pending_images:
                 try:
+                    bucket_path = self.partition_path(image)
+
                     upload_successful = False
                     if debug:
                         logger.debug(f"Pretended to upload image {image} to bucket {self.bucket_name}")
                     else:
-                        upload_successful = self.s3_manager.upload(image, self.bucket_name)
+                        upload_successful = self.s3_manager.upload(image, self.bucket_name, bucket_path)
                     if upload_successful:
                         os.remove(image)
                 except Exception as e:
