@@ -20,7 +20,7 @@ from raspberrycam.scheduler import FdriScheduler
 load_dotenv()
 
 
-def main(debug: bool = False, interval: int = 800) -> None:
+def main(debug: bool = False, interval: int = 10800) -> None:
     """Example invocation of the RasberryCam class"""
 
     # This will throw an error and complain if keys aren't set,
@@ -59,7 +59,7 @@ def main(debug: bool = False, interval: int = 800) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--interval", type=int, default=800)
+    parser.add_argument("--interval", type=int, default=10800)
 
     args = parser.parse_args()
     main(debug=args.debug, interval=args.interval)

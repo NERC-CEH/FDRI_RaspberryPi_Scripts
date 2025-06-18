@@ -9,9 +9,9 @@
 sudo apt-get update && sudo apt-get upgrade -y 
 sudo apt-get install python3 python3-picamzero python3-libcamera libcap-dev -y 
 sudo cp config/rpi-camera.service /etc/systemd/system/rpi-camera.service
+cp camera_startup.sh $HOME/camera_startup.sh
 sudo systemctl enable rpi-camera.service 
 sudo systemctl start rpi-camera.service
-cp camera_startup.sh $HOME/camera_startup.sh
 
 python -m venv --system-site-packages .venv
 source .venv/bin/activate
