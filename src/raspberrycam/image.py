@@ -66,7 +66,7 @@ class ImageManager:
         config = self.config
         # TODO should 01 be part of the camera ID?
         # https://github.com/NERC-CEH/FDRI_RaspberryPi_Scripts/issues/12
-        return f"catchment={config.catchment}/site={config.site}/compound=01/type=CAM/direction={config.direction}/date={datetime.now().strftime('%Y-%m-%d')}/{config.camera}_{config.site}_01_CAM_{config.direction}_{timestamp}"
+        return f"{config.catchment}_{config.site}_01_CAM_{config.direction}_{timestamp}"
 
 
 class S3ImageManager(ImageManager):
@@ -87,6 +87,13 @@ class S3ImageManager(ImageManager):
         self.s3_manager = s3_manager
         super().__init__(*args, **kwargs)
 
+    def partition_path(self, image: str) -> None:
+        """Accepts an absolute path to the image
+        Returns the partitioned path with just the filename appended"""
+        config = self.config
+        filename = Path(image).name
+        return f"catchment={config.catchment}/site={config.site}/compound=01/type=CAM/direction={config.direction}/date={datetime.now().strftime('%Y-%m-%d')}/{filename}"  # noqa: E501
+
     def upload_pending(self, debug: bool = False) -> None:
         """Upload files from the pending directory to S3
         Args:
@@ -97,11 +104,13 @@ class S3ImageManager(ImageManager):
             self.s3_manager.assume_role()
             for image in pending_images:
                 try:
+                    bucket_path = self.partition_path(image)
+
                     upload_successful = False
                     if debug:
                         logger.debug(f"Pretended to upload image {image} to bucket {self.bucket_name}")
                     else:
-                        upload_successful = self.s3_manager.upload(image, self.bucket_name)
+                        upload_successful = self.s3_manager.upload(image, self.bucket_name, bucket_path)
                     if upload_successful:
                         os.remove(image)
                 except Exception as e:
