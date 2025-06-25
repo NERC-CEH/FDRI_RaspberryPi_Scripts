@@ -86,7 +86,7 @@ class PiCamera(CameraInterface):
         self._camera = Camera()
         self._camera.still_size = (self.image_width, self.image_height)
 
-    def capture_image(self, filepath: Path, vflip: bool = False, hflip: bool = False) -> None:
+    def capture_image(self, filepath: Path, vflip: bool = False, hflip: bool = True) -> None:
         """Captures an image and writes it to file
         Args:
             filepath: The output destination
@@ -126,7 +126,7 @@ class LibCamera(CameraInterface):
 
         self.quality = quality
 
-    def capture_image(self, filepath: Path, vflip: bool = False, hflip: bool = False) -> None:
+    def capture_image(self, filepath: Path, vflip: bool = False, hflip: bool = True) -> None:
         """Captures an image and writes it to file
         Args:
             filepath: The output destination
