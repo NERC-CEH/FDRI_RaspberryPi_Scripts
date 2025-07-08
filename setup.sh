@@ -6,6 +6,7 @@
 # manual step of adding to Github "deploy keys"
 # manual step of adding a device name to a startup script [??]
 
+cd $HOME/FDRI_RaspberryPi_Scripts 
 sudo apt-get update && sudo apt-get upgrade -y 
 sudo apt-get install python3 python3-picamzero python3-libcamera libcap-dev -y 
 sudo cp config/rpi-camera.service /etc/systemd/system/rpi-camera.service
