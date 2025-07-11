@@ -3,7 +3,7 @@ requires = ["setuptools", "autosemver"]
 build-backend = "setuptools.build_meta"
 
 [project]
-dependencies = ["astral", "autosemver", "boto3", "picamzero", "platformdirs", "python-dotenv", "pyyaml"]
+dependencies = ["astral", "autosemver", "boto3", "picamzero", "platformdirs", "python-dotenv", "pyyaml", "opencv-python-headless==4.11.0.86", "picamera2==0.3.27"]
 requires-python = ">=3.9"
 name = "dri-raspberrycam"
 dynamic = ["version"]
